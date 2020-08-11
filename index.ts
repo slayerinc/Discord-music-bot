@@ -1,7 +1,9 @@
 // Imports
 import { Client, Message, Collection } from "discord.js";
-import { prefix, token } from "./config.json";
 import { readdir } from "fs";
+
+// requires
+const config = require("./config.json");
 
 // Definitions
 const client: Client = new Client();
@@ -15,15 +17,16 @@ readdir("./commands/", (err: NodeJS.ErrnoException, files: string[]) => {
         console.error(err);
     }
 
-    const jsfile = files.filter(file => file.split(".").includes("js"));
+    const jsfile = files.filter(file => file.endsWith(".ts"));
 
     if (jsfile.length === 0) {
-        return console.error("No commands found");
+        return console.error("Error: No commands found");
     }
 
     jsfile.map(file => {
         const pull = require(`./commands/${file}`);
-        commands.set(pull.name, pull);
+        commands.set(pull.conf.name, pull);
+        console.log(`Setup command [${pull.config.name}.js]`);
     });
 });
 
@@ -34,13 +37,26 @@ client.on("ready", () => {
 
 // Message event
 client.on("message", async (message: Message) => {
-    if (message.content == `${prefix}ping`) {
-        return message.channel.send(`:ping_pong: Ping! O-O \`${client.ws.ping}\` :ping_pong:`);
-    }
+    if (!message.content.startsWith(config.prefix)) return;
+    if (!message.guild) return;
+    if (message.author.bot) return;
+
+    const args = message.content.slice(config.prefix.length).trim().split(/ +/);
+    const cmd = args.shift().toLowerCase();
+
+    if (cmd.length === 0) return;
+
+    const command = require(`./commands/${cmd}`);
+
+    if (!command) return;
+
+    command.execute(client, message, args);
 });
 
 // Error handling
 client.on("error", console.error);
 
 // Login
-client.login(token);
+client.login(config.token);
+
+// npx ts-node index.ts
