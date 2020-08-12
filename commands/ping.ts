@@ -17,7 +17,7 @@ module.exports.execute = async (client: Client, message: Message) => {
     msgembed.setTitle(":ping_pong: Ping! :ping_pong:");
     msgembed.setDescription(`Api ping: \`${client.ws.ping}ms\``);
     msgembed.setTimestamp();
-    msgembed.setFooter(config.url);
+    msgembed.setFooter(config.footer);
 
-    message.channel.send(msgembed);
+    await message.channel.send(msgembed);
 }

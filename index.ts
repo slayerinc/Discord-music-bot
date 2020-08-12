@@ -26,7 +26,7 @@ readdir("./commands/", (err: NodeJS.ErrnoException, files: string[]) => {
     jsfile.map(file => {
         const pull = require(`./commands/${file}`);
         commands.set(pull.conf.name, pull);
-        console.log(`Setup command [${pull.config.name}.js]`);
+        console.log(`Setup command [${pull.conf.name}.js]`);
     });
 });
 
